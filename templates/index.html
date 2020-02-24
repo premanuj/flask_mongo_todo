@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Home</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="topnav" id="myTopnav">
+      <a href="#home" class="active">Home</a>
+      <a href="#news">Items</a>
+      <a href="#contact">Contact</a>
+      <a href="#about">About</a>
+    </div>
+
+    <div class="container">
+      <p>
+      <form method="post">
+        <label for="new-item">Add New Item</label>
+        <input id="new-item" name="item" type="text" />
+        <button type="submit">Add</button></a>
+      </form>
+      </p>
+
+      <h3>Items</h3>
+      <ul id="list-item">
+      {% if items|length < 1 %}
+      <li>
+          <label>No items in database</label>
+        </li>
+      {% else %}
+      
+      {% for  item in items %}
+        <div class='single-item'>
+          <li>
+            <label>{{ item.name }}</label>
+            <a href="{{ url_for('update', item_id=item.id) }}"><button class="edit"item-id="{{item.id}}" >Edit</button></a>
+            <button class="delete" item-id="{{item.id}}">Delete</button>
+          </li>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </ul>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+        $(document).on('click', '.delete', function(e){
+            e.preventDefault()
+            var value = $(this).attr('item-id')
+            var url = "{{ url_for('remove', item_id=value)}}"
+            console.log(value)
+            $.ajax({
+              type: 'DELETE',
+              url: url+value,
+              contentType: 'application/json',
+              dataType:"json",
+              success: function(data){
+                          if (data.length < 1){
+                              $("#list-item").html("<li><label>No items in database</label></li>");
+                          }else{
+                              var html = ""
+                              for (item of data){
+                                  html+=`<li>
+                                          <label>`+item.name +`</label>
+                                          <input type='text' />
+                                          <button class='edit' >Edit</button>
+                                          <button class='delete' id='delete_item' item-id='`+item.id +`'>Delete</button>
+                                          </li>`
+                                  console.log(item.name)
+                              }
+                              $("#list-item").html(html);
+                          };
+                      },
+              error: function(err){
+                  console.log("Error")
+                  console.log(err)
+              }
+            });
+        });
+    });
+    </script>
+  </body>
+</html>
